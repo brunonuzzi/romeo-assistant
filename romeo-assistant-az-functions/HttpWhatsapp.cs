@@ -9,11 +9,12 @@ using System.Threading.Tasks;
 
 namespace romeo_assistant_az_functions
 {
-    public static class Function1
+    public static class HttpWhatsapp
     {
-        [FunctionName("Function1")]
+        [FunctionName("HttpWhatsapp")]
         public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)] HttpRequest req,
+            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]
+            HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
