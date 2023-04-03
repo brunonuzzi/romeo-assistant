@@ -4,7 +4,6 @@ using romeo_assistant_core.Models.Configuration;
 using romeo_assistant_core.Models.Supabase;
 using romeo_assistant_core.Models.Whatsapp;
 using romeo_assistant_core.Utils;
-using SharpToken;
 using Supabase;
 using Client = Supabase.Client;
 using Message = romeo_assistant_core.Models.Supabase.Message;
@@ -105,10 +104,6 @@ namespace romeo_assistant_core.Services.Database
 
         public async Task<Message> SaveAIResponseAsync(Prompt prompt, string response)
         {
-
-            var encoding = GptEncoding.GetEncoding("cl100k_base");
-            var encoded = encoding.Encode(response);
-
             var result = await _supabaseClient.Postgrest.Table<Message>()
                 .Insert(new Message
                 {
@@ -117,7 +112,7 @@ namespace romeo_assistant_core.Services.Database
                     UserId = "bot",
                     UserName = "bot",
                     MessageText = response,
-                    TokenSize = encoded.Count,
+                    TokenSize = Helper.CalculateTokenSize(response),
                     CreatedAt = DateTime.Now
                 });
 

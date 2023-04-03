@@ -60,7 +60,7 @@ namespace romeo_assistant_core.Services.Behaviour
 
         private async Task<bool> HasPromptCommand(IncomingMessage incomingMessage, Group group)
         {
-            if (incomingMessage.Message.Text.Contains(_appSettings.Value.RomeoSetup?.ResetPromptCommand!))
+            if (incomingMessage.Message!.Text!.Contains(_appSettings.Value.RomeoSetup?.ResetPromptCommand!))
             {
                 await _supabaseService.CreatePromptAsync(group, incomingMessage);
                 await _whatsappService.ConfirmGroupAboutNewPrompt(incomingMessage);

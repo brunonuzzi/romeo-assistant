@@ -11,7 +11,7 @@ namespace romeo_assistant_core.Services.Whatsapp
         private readonly IOptions<AppSettings> _appSettings;
         private readonly IHttpClientFactory _httpClientFactory;
 
-        public WhatsappService(IOptions<AppSettings> appSettings, HttpClient httpClient, IHttpClientFactory httpClientFactory)
+        public WhatsappService(IOptions<AppSettings> appSettings, IHttpClientFactory httpClientFactory)
         {
             _appSettings = appSettings;
             _httpClientFactory = httpClientFactory;
@@ -46,8 +46,7 @@ namespace romeo_assistant_core.Services.Whatsapp
             client.DefaultRequestHeaders.Add("x-maytapi-key", _appSettings.Value.Maytapi?.ApiKey);
             var baseUrl = $"{_appSettings.Value.Maytapi?.BaseApiUrl}{_appSettings.Value.Maytapi?.ProductId}/setWebhook";
 
-            var x = await client.PostAsync(baseUrl, httpContent);
-
+            await client.PostAsync(baseUrl, httpContent);
         }
 
         private async Task SendMessageAsync(string baseUrl, string message, string toNumber, string replyTo)
