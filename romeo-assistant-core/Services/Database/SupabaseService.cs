@@ -93,9 +93,6 @@ namespace romeo_assistant_core.Services.Database
                     Phone = incomingMessage.User?.Phone,
                     MessageText = incomingMessage.Message?.Text,
                     TokenSize = Helper.CalculateTokenSize(incomingMessage.Message?.Text!),
-                    ConversationId = incomingMessage.Conversation,
-                    ConversationName = incomingMessage.Conversation_Name,
-                    ReplyUrl = incomingMessage.Reply,
                     CreatedAt = Helper.ToLocalTime((long)incomingMessage.Timestamp!)
                 });
 

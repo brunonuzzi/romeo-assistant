@@ -36,15 +36,5 @@ public class Message : BaseModel
     [Column("token_size")]
     public int TokenSize { get; set; }
 
-    [Column("conversation_id")]
-    public string? ConversationId { get; set; }
-
-    [Column("conversation_name")]
-    public string? ConversationName { get; set; }
-
-    [Column("reply_url")]
-    public string? ReplyUrl { get; set; }
-
-    [Column("created_at")]
-    public DateTime CreatedAt { get; set; }
+    [Column("created_at")] public DateTime CreatedAt { get; set; }
 }
