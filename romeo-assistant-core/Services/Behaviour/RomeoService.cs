@@ -72,6 +72,6 @@ namespace romeo_assistant_core.Services.Behaviour
         }
 
         private static bool IsATextMessageForAnyGroup(IncomingMessage incomingMessage) =>
-            incomingMessage.Type == "message" && incomingMessage.Message?.Text != null && incomingMessage.Message.FromMe != true && incomingMessage.Conversation!.Contains("@g.us");
+            incomingMessage?.Type == "message" && incomingMessage?.Message?.Text != null && incomingMessage?.Message.FromMe != true && incomingMessage.Conversation!.Contains("@g.us");
     }
 }

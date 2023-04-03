@@ -27,6 +27,7 @@
             public string? ResetPromptCommand { get; set; }
             public string? ResetPromptSuccess { get; set; }
             public int TokenMaxSize { get; set; }
+            public string? AzureFunctionsUrl { get; set; }
         }
 
         public class SupabaseSettings

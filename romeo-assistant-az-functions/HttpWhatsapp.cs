@@ -4,32 +4,36 @@ using Microsoft.Azure.WebJobs;
 using Microsoft.Azure.WebJobs.Extensions.Http;
 using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
+using romeo_assistant_core.Models.Whatsapp;
+using romeo_assistant_core.Services.Behaviour;
 using System.IO;
 using System.Threading.Tasks;
 
 namespace romeo_assistant_az_functions
 {
-    public static class HttpWhatsapp
+    public class HttpWhatsapp
     {
+        private readonly IBehaviour _behaviour;
+
+        public HttpWhatsapp(IBehaviour behaviour)
+        {
+            _behaviour = behaviour;
+        }
+
         [FunctionName("HttpWhatsapp")]
-        public static async Task<IActionResult> Run(
-            [HttpTrigger(AuthorizationLevel.Anonymous, "get", "post", Route = null)]
+        public async Task<IActionResult> Run(
+            [HttpTrigger(AuthorizationLevel.Anonymous, "post", Route = null)]
             HttpRequest req,
             ILogger log)
         {
             log.LogInformation("C# HTTP trigger function processed a request.");
 
-            string name = req.Query["name"];
-
             string requestBody = await new StreamReader(req.Body).ReadToEndAsync();
-            dynamic data = JsonConvert.DeserializeObject(requestBody);
-            name = name ?? data?.name;
+            IncomingMessage incomingMessage = JsonConvert.DeserializeObject<IncomingMessage>(requestBody);
 
-            string responseMessage = string.IsNullOrEmpty(name)
-                ? "This HTTP triggered function executed successfully. Pass a name in the query string or in the request body for a personalized response."
-                : $"Hello, {name}. This HTTP triggered function executed successfully.";
+            await _behaviour.ExecuteWorkFlow(incomingMessage);
 
-            return new OkObjectResult(responseMessage);
+            return new OkObjectResult("Ok");
         }
     }
 }

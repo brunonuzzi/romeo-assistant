@@ -23,10 +23,7 @@ builder.Services.AddScoped<IChatBotService, ChatBotService>();
 builder.Services.AddScoped<IWhatsappService, WhatsappService>();
 builder.Services.AddScoped<IBehaviour, RomeoService>();
 
-builder.Services.AddControllers(options =>
-{
-    options.InputFormatters.Add(new TextPlainInputFormatter());
-});
+builder.Services.AddControllers(options => { options.InputFormatters.Add(new TextPlainInputFormatter()); });
 
 builder.Services.AddHttpClient(); // Add this line
 
@@ -48,7 +45,8 @@ if (app.Environment.IsDevelopment())
 
     var serviceProvider = serviceScope.ServiceProvider;
     var whatsappService = serviceProvider.GetRequiredService<IWhatsappService>();
-    whatsappService.ConfigureWebHook();
+    var localUrl = $"{Environment.GetEnvironmentVariable("VS_TUNNEL_URL")}Whatsapp";
+    whatsappService.ConfigureWebHook(localUrl);
 }
 
 app.UseHttpsRedirection();

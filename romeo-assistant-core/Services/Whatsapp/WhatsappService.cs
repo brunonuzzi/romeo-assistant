@@ -32,12 +32,11 @@ namespace romeo_assistant_core.Services.Whatsapp
             await SendMessageAsync(incomingMessage.Reply!, _appSettings.Value.RomeoSetup?.ResetPromptSuccess!, incomingMessage.Conversation!, incomingMessage.Message?.Id!);
         }
 
-        public async Task ConfigureWebHook()
+        public async Task ConfigureWebHook(string url)
         {
-            var localUrl = $"{Environment.GetEnvironmentVariable("VS_TUNNEL_URL")}Whatsapp";
             var payload = new
             {
-                webhook = localUrl,
+                webhook = url,
                 ack_delivery = false,
             };
             var httpContent = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
