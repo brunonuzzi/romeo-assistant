@@ -1,16 +1,16 @@
 ﻿using Microsoft.Extensions.Options;
 using Postgrest;
-using romeo_assistant.Models.Configuration;
-using romeo_assistant.Models.Supabase;
-using romeo_assistant.Models.Whatsapp;
-using romeo_assistant.Utils;
+using romeo_assistant_core.Models.Configuration;
+using romeo_assistant_core.Models.Supabase;
+using romeo_assistant_core.Models.Whatsapp;
+using romeo_assistant_core.Utils;
 using SharpToken;
 using Supabase;
 using Client = Supabase.Client;
-using Message = romeo_assistant.Models.Supabase.Message;
+using Message = romeo_assistant_core.Models.Supabase.Message;
 
 
-namespace romeo_assistant.Services.Database
+namespace romeo_assistant_core.Services.Database
 {
     public class SupabaseService : ISupabaseService
     {

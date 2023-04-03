@@ -1,12 +1,12 @@
 ﻿using Microsoft.Extensions.Options;
-using romeo_assistant.Models.Configuration;
-using romeo_assistant.Models.Supabase;
-using romeo_assistant.Models.Whatsapp;
-using romeo_assistant.Services.ChatBot;
-using romeo_assistant.Services.Database;
-using romeo_assistant.Services.Whatsapp;
+using romeo_assistant_core.Models.Configuration;
+using romeo_assistant_core.Models.Supabase;
+using romeo_assistant_core.Models.Whatsapp;
+using romeo_assistant_core.Services.ChatBot;
+using romeo_assistant_core.Services.Database;
+using romeo_assistant_core.Services.Whatsapp;
 
-namespace romeo_assistant.Services.Behaviour
+namespace romeo_assistant_core.Services.Behaviour
 {
     public class RomeoService : IBehaviour
     {

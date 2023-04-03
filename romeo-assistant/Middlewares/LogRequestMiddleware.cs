@@ -1,4 +1,4 @@
-﻿namespace romeo_assistant.Middlewares
+﻿namespace romeo_assistant_api.Middlewares
 {
     public class LogRequestMiddleware
     {

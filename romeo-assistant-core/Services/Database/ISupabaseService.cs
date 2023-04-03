@@ -1,7 +1,7 @@
-﻿using romeo_assistant.Models.Supabase;
-using romeo_assistant.Models.Whatsapp;
+﻿using romeo_assistant_core.Models.Supabase;
+using romeo_assistant_core.Models.Whatsapp;
 
-namespace romeo_assistant.Services.Database
+namespace romeo_assistant_core.Services.Database
 {
     public interface ISupabaseService
     {

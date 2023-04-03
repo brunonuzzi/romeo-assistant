@@ -1,10 +1,10 @@
 ﻿using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
-using romeo_assistant.Models.Configuration;
-using romeo_assistant.Models.Whatsapp;
+using romeo_assistant_core.Models.Configuration;
+using romeo_assistant_core.Models.Whatsapp;
 using System.Text;
 
-namespace romeo_assistant.Services.Whatsapp
+namespace romeo_assistant_core.Services.Whatsapp
 {
     public class WhatsappService : IWhatsappService
     {

@@ -1,6 +1,6 @@
-﻿using romeo_assistant.Models.Whatsapp;
+﻿using romeo_assistant_core.Models.Whatsapp;
 
-namespace romeo_assistant.Services.Behaviour
+namespace romeo_assistant_core.Services.Behaviour
 {
     public interface IBehaviour
     {

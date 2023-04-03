@@ -1,4 +1,4 @@
-﻿namespace romeo_assistant.Models.Supabase;
+﻿namespace romeo_assistant_core.Models.Supabase;
 
 public enum MessageType
 {

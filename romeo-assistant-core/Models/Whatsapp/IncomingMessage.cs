@@ -1,6 +1,6 @@
 ﻿using Newtonsoft.Json;
 
-namespace romeo_assistant.Models.Whatsapp;
+namespace romeo_assistant_core.Models.Whatsapp;
 
 public class IncomingMessage
 {

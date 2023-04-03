@@ -1,7 +1,7 @@
 ﻿using Postgrest.Attributes;
 using Postgrest.Models;
 
-namespace romeo_assistant.Models.Supabase;
+namespace romeo_assistant_core.Models.Supabase;
 
 [Table("group")]
 public class Group : BaseModel

@@ -1,9 +1,9 @@
-using romeo_assistant.Middlewares;
-using romeo_assistant.Models.Configuration;
-using romeo_assistant.Services.Behaviour;
-using romeo_assistant.Services.ChatBot;
-using romeo_assistant.Services.Database;
-using romeo_assistant.Services.Whatsapp;
+using romeo_assistant_api.Middlewares;
+using romeo_assistant_core.Models.Configuration;
+using romeo_assistant_core.Services.Behaviour;
+using romeo_assistant_core.Services.ChatBot;
+using romeo_assistant_core.Services.Database;
+using romeo_assistant_core.Services.Whatsapp;
 using Serilog;
 
 var builder = WebApplication.CreateBuilder(args);

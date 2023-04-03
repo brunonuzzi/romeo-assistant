@@ -1,4 +1,4 @@
-﻿namespace romeo_assistant.Models.Configuration
+﻿namespace romeo_assistant_core.Models.Configuration
 {
     public class AppSettings
     {

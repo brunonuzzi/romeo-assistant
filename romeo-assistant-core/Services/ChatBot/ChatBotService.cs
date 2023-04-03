@@ -1,9 +1,9 @@
 ﻿using Microsoft.Extensions.Options;
 using OpenAI_API;
-using romeo_assistant.Models.Configuration;
-using romeo_assistant.Models.Supabase;
+using romeo_assistant_core.Models.Configuration;
+using romeo_assistant_core.Models.Supabase;
 
-namespace romeo_assistant.Services.ChatBot
+namespace romeo_assistant_core.Services.ChatBot
 {
     public class ChatBotService : IChatBotService
     {

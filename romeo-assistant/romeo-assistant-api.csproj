@@ -4,7 +4,7 @@
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-    <RootNamespace>romeo_assistant</RootNamespace>
+    <RootNamespace>romeo_assistant_api</RootNamespace>
   </PropertyGroup>
 
   <ItemGroup>
@@ -15,10 +15,11 @@
     <PackageReference Include="Serilog.Formatting.Compact" Version="1.1.0" />
     <PackageReference Include="Serilog.Sinks.Console" Version="4.1.0" />
     <PackageReference Include="Swashbuckle.AspNetCore" Version="6.5.0" />
-    <PackageReference Include="OpenAI" Version="1.7.1" />
-    <PackageReference Include="postgrest-csharp" Version="3.1.3" />
-    <PackageReference Include="SharpToken" Version="1.0.25" />
-    <PackageReference Include="supabase-csharp" Version="0.8.8" />
+    
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\romeo-assistant-core\romeo-assistant-core.csproj" />
   </ItemGroup>
 
 </Project>

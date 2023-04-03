@@ -1,6 +1,6 @@
 ﻿using SharpToken;
 
-namespace romeo_assistant.Utils
+namespace romeo_assistant_core.Utils
 {
     public static class Helper
     {

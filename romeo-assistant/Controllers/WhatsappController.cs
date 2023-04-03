@@ -1,8 +1,8 @@
 ﻿using Microsoft.AspNetCore.Mvc;
-using romeo_assistant.Models.Whatsapp;
-using romeo_assistant.Services.Behaviour;
+using romeo_assistant_core.Models.Whatsapp;
+using romeo_assistant_core.Services.Behaviour;
 
-namespace romeo_assistant.Controllers
+namespace romeo_assistant_api.Controllers
 {
     [ApiController]
     [Route("[controller]")]

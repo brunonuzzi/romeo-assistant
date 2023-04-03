@@ -1,6 +1,6 @@
-﻿using romeo_assistant.Models.Whatsapp;
+﻿using romeo_assistant_core.Models.Whatsapp;
 
-namespace romeo_assistant.Services.Whatsapp
+namespace romeo_assistant_core.Services.Whatsapp
 {
     public interface IWhatsappService
     {
