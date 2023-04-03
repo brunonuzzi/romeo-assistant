@@ -6,7 +6,6 @@ using romeo_assistant_core.Services.Behaviour;
 using romeo_assistant_core.Services.ChatBot;
 using romeo_assistant_core.Services.Database;
 using romeo_assistant_core.Services.Whatsapp;
-using System;
 
 [assembly: FunctionsStartup(typeof(romeo_assistant_az_functions.Startup))]
 
@@ -17,7 +16,7 @@ namespace romeo_assistant_az_functions
         public override void Configure(IFunctionsHostBuilder builder)
         {
             var config = new ConfigurationBuilder()
-                .SetBasePath(Environment.CurrentDirectory)
+                .SetBasePath(builder.GetContext().ApplicationRootPath)
                 .AddJsonFile("appsettings.json", optional: true, reloadOnChange: true)
                 .AddEnvironmentVariables()
                 .Build();
