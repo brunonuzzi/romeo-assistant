@@ -16,8 +16,9 @@ public class WhatsappMessage
     [JsonProperty("fromMe")]
     public bool? FromMe { get; set; }
 
-    [JsonProperty("mentions")]
-    public List<string>? Mentions { get; set; }
+    [JsonProperty("payload")] public string? Payload { get; set; }
+
+    [JsonProperty("mentions")] public List<string>? Mentions { get; set; }
 
     [JsonProperty("statuses")]
     public List<StatusMessage>? Statuses { get; set; }

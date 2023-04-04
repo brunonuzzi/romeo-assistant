@@ -4,9 +4,9 @@ namespace romeo_assistant_core.Services.Whatsapp
 {
     public interface IWhatsappService
     {
-        Task InformGroupAboutPromptReset(IncomingMessage incomingMessage);
         Task SendGroupResponse(IncomingMessage incomingMessage, string response);
-        Task ConfirmGroupAboutNewPrompt(IncomingMessage incomingMessage);
+        Task SendGroupMessage(IncomingMessage incomingMessage, string message);
+        Task SendGroupLocationMessage(IncomingMessage incomingMessage, LocationMessage response);
         Task ConfigureWebHook(string url);
     }
 }

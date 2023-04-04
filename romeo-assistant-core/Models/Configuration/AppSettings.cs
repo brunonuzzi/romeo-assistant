@@ -27,6 +27,8 @@
             public string? ResetPromptCommand { get; set; }
             public string? ResetPromptSuccess { get; set; }
             public int TokenMaxSize { get; set; }
+            public string? TokensRemainingCommand { get; set; }
+            public string? TokensRemainingSuccess { get; set; }
             public string? AzureFunctionsUrl { get; set; }
         }
 

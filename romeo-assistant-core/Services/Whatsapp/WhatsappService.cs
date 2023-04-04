@@ -17,19 +17,47 @@ namespace romeo_assistant_core.Services.Whatsapp
             _httpClientFactory = httpClientFactory;
         }
 
-        public async Task InformGroupAboutPromptReset(IncomingMessage incomingMessage)
-        {
-            await SendMessageAsync(incomingMessage.Reply!, _appSettings.Value.RomeoSetup?.PromptResetMessage!, incomingMessage.Conversation!);
-        }
-
         public async Task SendGroupResponse(IncomingMessage incomingMessage, string response)
         {
-            await SendMessageAsync(incomingMessage.Reply!, response, incomingMessage.Conversation!, incomingMessage.Message?.Id!);
+            var payload = new
+            {
+                message = response,
+                type = "text",
+                to_number = incomingMessage.Conversation,
+                reply_to = incomingMessage.Message?.Id,
+                skip_filter = true
+            };
+
+            await PostMessageToMayTapi(incomingMessage.Reply!, payload);
         }
 
-        public async Task ConfirmGroupAboutNewPrompt(IncomingMessage incomingMessage)
+        public async Task SendGroupMessage(IncomingMessage incomingMessage, string message)
         {
-            await SendMessageAsync(incomingMessage.Reply!, _appSettings.Value.RomeoSetup?.ResetPromptSuccess!, incomingMessage.Conversation!, incomingMessage.Message?.Id!);
+            var payload = new
+            {
+                message,
+                type = "text",
+                to_number = incomingMessage.Conversation,
+                skip_filter = true
+            };
+
+            await PostMessageToMayTapi(incomingMessage.Reply!, payload);
+        }
+
+        public async Task SendGroupLocationMessage(IncomingMessage incomingMessage, LocationMessage response)
+        {
+            var payload = new
+            {
+                text = response.Title,
+                type = "location",
+                latitude = response.Lat,
+                longitude = response.Lng,
+                to_number = incomingMessage.Conversation,
+                reply_to = incomingMessage.Message?.Id,
+                skip_filter = true
+            };
+
+            await PostMessageToMayTapi(incomingMessage.Reply!, payload);
         }
 
         public async Task ConfigureWebHook(string url)
@@ -46,33 +74,6 @@ namespace romeo_assistant_core.Services.Whatsapp
             var baseUrl = $"{_appSettings.Value.Maytapi?.BaseApiUrl}{_appSettings.Value.Maytapi?.ProductId}/setWebhook";
 
             await client.PostAsync(baseUrl, httpContent);
-        }
-
-        private async Task SendMessageAsync(string baseUrl, string message, string toNumber, string replyTo)
-        {
-            var payload = new
-            {
-                message,
-                type = "text",
-                to_number = toNumber,
-                reply_to = replyTo,
-                skip_filter = true
-            };
-
-            await PostMessageToMayTapi(baseUrl, payload);
-        }
-
-        private async Task SendMessageAsync(string baseUrl, string message, string toNumber)
-        {
-            var payload = new
-            {
-                message,
-                type = "text",
-                to_number = toNumber,
-                skip_filter = true
-            };
-
-            await PostMessageToMayTapi(baseUrl, payload);
         }
 
         private async Task PostMessageToMayTapi(string baseUrl, object payload)

@@ -3,6 +3,7 @@ using romeo_assistant_core.Models.Configuration;
 using romeo_assistant_core.Services.Behaviour;
 using romeo_assistant_core.Services.ChatBot;
 using romeo_assistant_core.Services.Database;
+using romeo_assistant_core.Services.NextBike;
 using romeo_assistant_core.Services.Whatsapp;
 using Serilog;
 
@@ -21,6 +22,7 @@ builder.Services.Configure<AppSettings>(builder.Configuration);
 builder.Services.AddScoped<ISupabaseService, SupabaseService>();
 builder.Services.AddScoped<IChatBotService, ChatBotService>();
 builder.Services.AddScoped<IWhatsappService, WhatsappService>();
+builder.Services.AddScoped<INextBikeService, NextBikeService>();
 builder.Services.AddScoped<IBehaviour, RomeoService>();
 
 builder.Services.AddControllers(options => { options.InputFormatters.Add(new TextPlainInputFormatter()); });

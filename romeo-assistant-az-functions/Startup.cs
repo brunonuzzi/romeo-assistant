@@ -27,19 +27,6 @@ namespace romeo_assistant_az_functions
             builder.Services.AddScoped<IChatBotService, ChatBotService>();
             builder.Services.AddScoped<IWhatsappService, WhatsappService>();
             builder.Services.AddScoped<IBehaviour, RomeoService>();
-
-            //var serviceProvider = builder.Services.BuildServiceProvider();
-            //var appSettings = serviceProvider.GetService<AppSettings>();
-            //    whatsappService.ConfigureWebHook(appSettings?.RomeoSetup?.AzureFunctionsUrl!);
-            //var environment = config.GetValue<string>("ASPNETCORE_ENVIRONMENT");
-            //var isReleaseVersion = environment?.ToLower() == "release";
-            //if (isReleaseVersion)
-            //{
-            //    var serviceProvider = builder.Services.BuildServiceProvider();
-            //    var whatsappService = serviceProvider.GetService<IWhatsappService>();
-            //    var appSettings = serviceProvider.GetService<AppSettings>();
-            //    whatsappService.ConfigureWebHook(appSettings?.RomeoSetup?.AzureFunctionsUrl!);
-            //}
         }
     }
 }
