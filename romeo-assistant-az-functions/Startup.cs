@@ -5,6 +5,7 @@ using romeo_assistant_core.Models.Configuration;
 using romeo_assistant_core.Services.Behaviour;
 using romeo_assistant_core.Services.ChatBot;
 using romeo_assistant_core.Services.Database;
+using romeo_assistant_core.Services.NextBike;
 using romeo_assistant_core.Services.Whatsapp;
 
 [assembly: FunctionsStartup(typeof(romeo_assistant_az_functions.Startup))]
@@ -26,6 +27,7 @@ namespace romeo_assistant_az_functions
             builder.Services.AddScoped<ISupabaseService, SupabaseService>();
             builder.Services.AddScoped<IChatBotService, ChatBotService>();
             builder.Services.AddScoped<IWhatsappService, WhatsappService>();
+            builder.Services.AddScoped<INextBikeService, NextBikeService>();
             builder.Services.AddScoped<IBehaviour, RomeoService>();
         }
     }
