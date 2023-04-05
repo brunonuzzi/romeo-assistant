@@ -89,9 +89,9 @@ namespace romeo_assistant_core.Services.Behaviour
 
         private async Task<bool> HasActiveModeCommand(IncomingMessage incomingMessage, Group group)
         {
-            if (incomingMessage.Message?.Text != null &&
-                incomingMessage.Message!.Text!.Contains("!active") ||
-                incomingMessage.Message!.Text!.Contains("!passive"))
+            if (incomingMessage.Message?.Text != null
+                 && (incomingMessage.Message?.Text?.Contains("!active") ?? false)
+                 || (incomingMessage.Message?.Text?.Contains("!passive") ?? false))
             {
                 var isActiveMode = incomingMessage.Message!.Text!.Contains("!active");
                 await _supabaseService.UpdateGroupActiveMode(group, isActiveMode);

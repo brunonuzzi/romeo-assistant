@@ -4,6 +4,7 @@ using romeo_assistant_core.Models.Configuration;
 using romeo_assistant_core.Models.NextBike;
 using romeo_assistant_core.Models.Whatsapp;
 using romeo_assistant_core.Utils;
+using System.Globalization;
 
 namespace romeo_assistant_core.Services.NextBike
 {
@@ -21,21 +22,18 @@ namespace romeo_assistant_core.Services.NextBike
         public async Task<LocationMessage> GetNextBikeDataByLocationAsync(double lat, double lng)
         {
             var client = _httpClientFactory.CreateClient();
-            var x = await client.GetAsync("https://maps.nextbike.net/maps/nextbike-live.json?city=789&domains=ea&list_cities=0&bikes=0");
+            var nearestPlaces = await client.GetAsync($"https://maps.nextbike.net/maps/nextbike.json?city=789&lat={lat.ToString(CultureInfo.InvariantCulture)}&lng={lng.ToString(CultureInfo.InvariantCulture)}&limit=5&distance=1000&bikes=0");
 
-            var response = await x.Content.ReadAsStringAsync();
+            var response = await nearestPlaces.Content.ReadAsStringAsync();
             var jsonObj = JObject.Parse(response);
 
             var placesArray = (JArray)jsonObj["countries"][0]["cities"][0]["places"];
 
             var places = placesArray.ToObject<List<Place>>();
 
-            Place nearestPlace = Helper.FindNearestPlace(lat, lng, places.Where(x => x.BikesAvailableToRent > 0).ToList());
+            Place nearestPlace = places.FirstOrDefault(x => x.BikesAvailableToRent > 0);
+
             Console.WriteLine(nearestPlace);
-
-
-            var distance = Helper.HaversineDistance(lat, lng, nearestPlace.Lat, nearestPlace.Lng);
-
 
             int? ebikes = nearestPlace.BikeTypes
                 .Where(kv => kv.Key.Contains(((int)BikeType.Eletric).ToString()))
@@ -47,7 +45,7 @@ namespace romeo_assistant_core.Services.NextBike
                 .Sum(kv => kv.Value);
 
             var message = String.Format("La estación más cercana a ti con alguna bici disponible esta a {0} de distancia\r\n📍 {1} \r\n\r\n🚲 Bicis disponibles: {2} \r\n\r\n⚡ Eléctricas: {3} \r\n💩 Chustas: {4} ",
-                Helper.ToHumanReadable(distance),
+                Helper.ToHumanReadable(nearestPlace.Dist),
                 nearestPlace.Name,
                 nearestPlace.Bikes,
                 ebikes ?? 0,
@@ -60,7 +58,7 @@ namespace romeo_assistant_core.Services.NextBike
                 Lat = nearestPlace.Lat,
                 Lng = nearestPlace.Lng,
                 Text = message,
-                distanceM2 = distance
+                distanceM2 = nearestPlace.Dist
             };
         }
     }

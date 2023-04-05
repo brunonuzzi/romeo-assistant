@@ -46,5 +46,7 @@ namespace romeo_assistant_core.Models.NextBike
         [JsonProperty("place_type")] public string PlaceType { get; set; }
 
         [JsonProperty("rack_locks")] public bool RackLocks { get; set; }
+
+        [JsonProperty("dist")] public double Dist { get; set; }
     }
 }
