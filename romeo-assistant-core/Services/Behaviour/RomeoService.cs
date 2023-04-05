@@ -38,6 +38,7 @@ namespace romeo_assistant_core.Services.Behaviour
                 var group = await _supabaseService.GetGroupAsync(incomingMessage.Conversation!)
                             ?? await _supabaseService.CreateGroupAsync(incomingMessage);
 
+                if (await HasActiveModeCommand(incomingMessage, group)) return;
                 if (await HasPromptCommand(incomingMessage, group)) return;
 
                 var prompt = await _supabaseService.GetPromptAsync(group)
@@ -52,27 +53,57 @@ namespace romeo_assistant_core.Services.Behaviour
 
                 if (contextMessages.Sum(x => x.TokenSize) + prompt.TokenSize >= _appSettings.Value.RomeoSetup?.TokenMaxSize)
                 {
-                    await InformGroupAboutPromptReset(incomingMessage);
+                    if (group.ActiveMode)
+                    {
+                        await InformGroupAboutPromptReset(incomingMessage);
+                    }
                     prompt = await _supabaseService.CreatePromptAsync(group);
                     await _supabaseService.SaveMessageAsync(prompt, incomingMessage);
                     contextMessages = await _supabaseService.GetContextMessagesAsync(prompt);
                 }
 
-                var response = string.Empty;
-                try
+                if (group.ActiveMode || HasAnyGroupMention(incomingMessage))
                 {
-                    response = await _chatBotService.GenerateResponseAsync(contextMessages, prompt);
-                }
-                catch (Exception)
-                {
-                    await InformGroupAboutPromptReset(incomingMessage);
-                    prompt = await _supabaseService.CreatePromptAsync(group);
-                    await _supabaseService.SaveMessageAsync(prompt, incomingMessage);
-                }
+                    var response = string.Empty;
+                    try
+                    {
+                        response = await _chatBotService.GenerateResponseAsync(contextMessages, prompt);
+                    }
+                    catch (Exception)
+                    {
+                        await InformGroupAboutPromptReset(incomingMessage);
+                        prompt = await _supabaseService.CreatePromptAsync(group);
+                        await _supabaseService.SaveMessageAsync(prompt, incomingMessage);
+                    }
 
-                await _supabaseService.SaveAIResponseAsync(prompt, response);
-                await _whatsappService.SendGroupResponse(incomingMessage, response);
+                    await _supabaseService.SaveAIResponseAsync(prompt, response);
+                    await _whatsappService.SendGroupResponse(incomingMessage, response);
+                }
             }
+        }
+
+        private bool HasAnyGroupMention(IncomingMessage incomingMessage) =>
+            (incomingMessage?.Message?.Text?.Contains(_appSettings.Value.RomeoSetup?.RomeoNumber!, StringComparison.InvariantCultureIgnoreCase) ?? false)
+            || (incomingMessage?.Quoted?.User?.Phone?.Contains(_appSettings.Value.RomeoSetup?.RomeoNumber!, StringComparison.InvariantCultureIgnoreCase) ?? false)
+            || (incomingMessage?.Message!.Text?.Contains("romeo", StringComparison.InvariantCultureIgnoreCase) ?? false);
+
+        private async Task<bool> HasActiveModeCommand(IncomingMessage incomingMessage, Group group)
+        {
+            if (incomingMessage.Message?.Text != null &&
+                incomingMessage.Message!.Text!.Contains("!active") ||
+                incomingMessage.Message!.Text!.Contains("!passive"))
+            {
+                var isActiveMode = incomingMessage.Message!.Text!.Contains("!active");
+                await _supabaseService.UpdateGroupActiveMode(group, isActiveMode);
+
+                var msg = isActiveMode ? "📣💬 Ok, ahora contestaré a todos los mensajes del grupo." : "🔔🤐 Ok, ahora solo contestaré cuando mencionado.";
+
+                await _whatsappService.SendGroupMessage(incomingMessage, msg);
+
+                return true;
+            }
+
+            return false;
         }
 
         private async Task<bool> HasLocationMessage(IncomingMessage incomingMessage, Prompt prompt)
@@ -86,7 +117,6 @@ namespace romeo_assistant_core.Services.Behaviour
 
                 var locationMessage = await _nextBikeService.GetNextBikeDataByLocationAsync(lat, lng);
 
-                await _supabaseService.SaveAIResponseAsync(prompt, locationMessage.Text!);
                 await _whatsappService.SendGroupResponse(incomingMessage, locationMessage.Text!);
                 await _whatsappService.SendGroupLocationMessage(incomingMessage, locationMessage);
 
@@ -107,9 +137,7 @@ namespace romeo_assistant_core.Services.Behaviour
                 var tokensRemainingCount = tokenMaxSize - (contextMessages.Sum(x => x.TokenSize) + prompt.TokenSize);
                 var response = string.Format(tokensRemainingMessage, tokensRemainingCount, tokenMaxSize);
 
-                await _supabaseService.SaveAIResponseAsync(prompt, response);
                 await _whatsappService.SendGroupMessage(incomingMessage, response);
-
                 return true;
             }
 
@@ -128,7 +156,6 @@ namespace romeo_assistant_core.Services.Behaviour
 
             return false;
         }
-
 
         private async Task InformGroupAboutPromptReset(IncomingMessage incomingMessage) =>
             await _whatsappService.SendGroupMessage(incomingMessage, _appSettings.Value.RomeoSetup?.PromptResetMessage!);

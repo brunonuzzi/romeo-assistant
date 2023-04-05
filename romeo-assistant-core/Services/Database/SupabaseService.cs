@@ -91,7 +91,7 @@ namespace romeo_assistant_core.Services.Database
                     UserId = incomingMessage.User?.Id,
                     UserName = incomingMessage.User?.Name,
                     Phone = incomingMessage.User?.Phone,
-                    MessageText = incomingMessage.Message?.Text,
+                    MessageText = incomingMessage.Message?.Text!.Replace($"@{_appSettings.Value.RomeoSetup?.RomeoNumber!}", "Romeo").Trim(),
                     TokenSize = Helper.CalculateTokenSize(incomingMessage.Message?.Text!),
                     CreatedAt = Helper.ToLocalTime((long)incomingMessage.Timestamp!)
                 });
@@ -125,6 +125,14 @@ namespace romeo_assistant_core.Services.Database
                     .Get())
                 .Models
                 .ToList();
+        }
+
+        public async Task<Group> UpdateGroupActiveMode(Group group, bool isActiveMode)
+        {
+            group.ActiveMode = isActiveMode;
+            await group.Update<Group>();
+
+            return group;
         }
     }
 }

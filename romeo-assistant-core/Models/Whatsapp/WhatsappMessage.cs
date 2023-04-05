@@ -23,6 +23,9 @@ public class WhatsappMessage
     [JsonProperty("statuses")]
     public List<StatusMessage>? Statuses { get; set; }
 
+    [JsonProperty("user")]
+    public User? User { get; set; }
+
     [JsonProperty("_serialized")]
     public string? Serialized { get; set; }
 }

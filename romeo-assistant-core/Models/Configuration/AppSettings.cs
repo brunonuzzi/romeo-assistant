@@ -22,6 +22,7 @@
 
         public class RomeoSetupSettings
         {
+            public string? RomeoNumber { get; set; }
             public string? BasicPromptMessage { get; set; }
             public string? PromptResetMessage { get; set; }
             public string? ResetPromptCommand { get; set; }
