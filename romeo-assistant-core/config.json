@@ -1,0 +1,41 @@
+{
+    "OpenAi": {
+        "ApiKey": ""
+    },
+    "Maytapi": {
+        "ApiKey": "",
+        "ProductId": "",
+        "BaseApiUrl": "https://api.maytapi.com/api/"
+    },
+    "RomeoSetup": {
+        "RomeoName": "Romeo",
+        "RomeoNumber": "34675433570",
+        "BasicPromptMessage": "Recuerda que estas en un chat y te llamas Romeo, los mensajes de otros usuarios tienen el formato [nombre:mensaje] , pero no los tuyos, no incluir [Romeo:respuesta] en tus respuestas, necesito siempre respuestas de maximo 8 palabras",
+        "PromptResetMessage": "\uD83D\uDDD1 ¡Ojo! \uD83D\uDDD1 El prompt actual ha llegado a su capacidad máxima de memoria y ha sido reiniciado al prompt básico.",
+        "ResetPromptCommand": "!prompt",
+        "ResetPromptSuccess": "\uD83D\uDC4C",
+        "TokensRemainingCommand": "!tokens",
+        "TokensRemainingSuccess": "Te quedan {0} de los {1} tokens posibles \uD83E\uDD11",
+        "TokenMaxSize": 3500,
+        "AzureFunctionsUrl": "https://romeo-assistant-az-functions20230403133613.azurewebsites.net/api/HttpWhatsapp",
+        "ActiveCommandMessage": "📣💬 Ok, ahora contestaré a todos los mensajes del grupo.",
+        "ActiveCommand": "!active",
+        "PassiveCommand": "!passive",
+        "PassiveCommandMessage": "🔔🤐 Ok, ahora solo contestaré cuando mencionado."
+    },
+    "Supabase": {
+        "Url": "",
+        "Key": ""
+    },
+    "NextBike": {
+        "NextBikeEndPoint": "https://maps.nextbike.net/maps/nextbike.json?city=789&lat={0}&lng={1}&limit=5&distance=1000&bikes=0",
+        "FoundBikeMessageSuccess": "La estación más cercana a ti con alguna bici disponible esta a {0} de distancia\r\n📍 {1} \r\n\r\n🚲 Bicis disponibles: {2} \r\n\r\n⚡ Eléctricas: {3} \r\n💩 Chustas: {4} "
+    },
+    "Logging": {
+        "LogLevel": {
+            "Default": "Information",
+            "Microsoft.AspNetCore": "Warning"
+        }
+    },
+    "AllowedHosts": "*"
+}

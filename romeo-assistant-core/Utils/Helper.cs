@@ -20,11 +20,9 @@ namespace romeo_assistant_core.Utils
             {
                 return $"{Math.Round(distanceInMeters, 2)} m";
             }
-            else
-            {
-                double distanceInKilometers = distanceInMeters / 1000.0;
-                return $"{Math.Round(distanceInKilometers, 2)} km";
-            }
+
+            double distanceInKilometers = distanceInMeters / 1000.0;
+            return $"{Math.Round(distanceInKilometers, 2)} km";
         }
 
     }

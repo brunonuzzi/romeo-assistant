@@ -7,6 +7,7 @@
         public RomeoSetupSettings? RomeoSetup { get; set; }
         public SupabaseSettings? Supabase { get; set; }
 
+        public NextBikeSettings? NextBike { get; set; }
 
         public class OpenAiSettings
         {
@@ -31,12 +32,23 @@
             public string? TokensRemainingCommand { get; set; }
             public string? TokensRemainingSuccess { get; set; }
             public string? AzureFunctionsUrl { get; set; }
+            public string? ActiveCommandMessage { get; set; }
+            public string? PassiveCommandMessage { get; set; }
+            public string? RomeoName { get; set; }
+            public string? ActiveCommand { get; set; }
+            public string? PassiveCommand { get; set; }
         }
 
         public class SupabaseSettings
         {
             public string? Url { get; set; }
             public string? Key { get; set; }
+        }
+
+        public class NextBikeSettings
+        {
+            public string? NextBikeEndPoint { get; set; }
+            public string? FoundBikeMessageSuccess { get; set; }
         }
     }
 }

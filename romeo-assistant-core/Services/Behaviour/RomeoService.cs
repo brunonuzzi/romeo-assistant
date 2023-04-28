@@ -2,11 +2,11 @@
 using romeo_assistant_core.Models.Configuration;
 using romeo_assistant_core.Models.Supabase;
 using romeo_assistant_core.Models.Whatsapp;
+using romeo_assistant_core.Services.Behaviour.CommandHandler;
+using romeo_assistant_core.Services.Behaviour.CommandHandler.Interface;
 using romeo_assistant_core.Services.ChatBot;
 using romeo_assistant_core.Services.Database;
-using romeo_assistant_core.Services.NextBike;
 using romeo_assistant_core.Services.Whatsapp;
-using System.Globalization;
 
 namespace romeo_assistant_core.Services.Behaviour
 {
@@ -15,147 +15,107 @@ namespace romeo_assistant_core.Services.Behaviour
         private readonly ISupabaseService _supabaseService;
         private readonly IWhatsappService _whatsappService;
         private readonly IChatBotService _chatBotService;
-        private readonly INextBikeService _nextBikeService;
         private readonly IOptions<AppSettings> _appSettings;
+        private readonly List<ICommandHandler> _commandHandlers;
 
         public RomeoService(IWhatsappService whatsappService,
             ISupabaseService supabaseService,
             IChatBotService chatBotService,
-            INextBikeService nextBikeService,
-            IOptions<AppSettings> appSettings)
+            IOptions<AppSettings> appSettings,
+            ActiveModeCommandHandler activeModeCommandHandler,
+            LocationCommandHandler locationCommandHandler,
+            RemainingTokenCommandHandler remainingTokenCommandHandler,
+            PromptCommandHandler promptCommandHandler
+        )
         {
             _whatsappService = whatsappService;
             _supabaseService = supabaseService;
             _chatBotService = chatBotService;
-            _nextBikeService = nextBikeService;
             _appSettings = appSettings;
+            _commandHandlers = new List<ICommandHandler>
+            {
+                activeModeCommandHandler,
+                locationCommandHandler,
+                remainingTokenCommandHandler,
+                promptCommandHandler
+            };
         }
 
         public async Task ExecuteWorkFlow(IncomingMessage incomingMessage)
         {
             if (IsATextMessageOrLocationForAnyGroup(incomingMessage))
             {
-                var group = await _supabaseService.GetGroupAsync(incomingMessage.Conversation!)
-                            ?? await _supabaseService.CreateGroupAsync(incomingMessage);
+                var group = await GetOrCreateGroupAsync(incomingMessage);
+                var prompt = await GetOrCreatePromptAsync(group);
 
-                if (await HasActiveModeCommand(incomingMessage, group)) return;
-                if (await HasPromptCommand(incomingMessage, group)) return;
+                if (await HandleCommands(incomingMessage, group, prompt)) return;
 
-                var prompt = await _supabaseService.GetPromptAsync(group)
-                             ?? await _supabaseService.CreatePromptAsync(group);
+                await SaveMessageAndHandlePrompt(incomingMessage, group, prompt);
+            }
+        }
 
-                if (await HasRemainingTokenCommand(incomingMessage, prompt)) return;
-                if (await HasLocationMessage(incomingMessage, prompt)) return;
+        private async Task<Group> GetOrCreateGroupAsync(IncomingMessage incomingMessage)
+        {
+            return await _supabaseService.GetGroupAsync(incomingMessage.Conversation!)
+                   ?? await _supabaseService.CreateGroupAsync(incomingMessage);
+        }
 
-                await _supabaseService.SaveMessageAsync(prompt, incomingMessage);
+        private async Task<Prompt> GetOrCreatePromptAsync(Group group)
+        {
+            return await _supabaseService.GetPromptAsync(group)
+                   ?? await _supabaseService.CreatePromptAsync(group);
+        }
 
-                var contextMessages = await _supabaseService.GetContextMessagesAsync(prompt);
+        private async Task<bool> HandleCommands(IncomingMessage incomingMessage, Group group, Prompt prompt)
+        {
+            foreach (var commandHandler in _commandHandlers)
+            {
+                var handled = await commandHandler.HandleCommandAsync(incomingMessage, group, prompt);
+                if (handled) return true;
+            }
+            return false;
+        }
 
-                if (contextMessages.Sum(x => x.TokenSize) + prompt.TokenSize >= _appSettings.Value.RomeoSetup?.TokenMaxSize)
+        private async Task SaveMessageAndHandlePrompt(IncomingMessage incomingMessage, Group group, Prompt prompt)
+        {
+            await _supabaseService.SaveMessageAsync(prompt, incomingMessage);
+
+            var contextMessages = await _supabaseService.GetContextMessagesAsync(prompt);
+
+            if (contextMessages.Sum(x => x.TokenSize) + prompt.TokenSize >= _appSettings.Value.RomeoSetup?.TokenMaxSize)
+            {
+                if (group.ActiveMode)
                 {
-                    if (group.ActiveMode)
-                    {
-                        await InformGroupAboutPromptReset(incomingMessage);
-                    }
+                    await InformGroupAboutPromptReset(incomingMessage);
+                }
+                prompt = await _supabaseService.CreatePromptAsync(group);
+                await _supabaseService.SaveMessageAsync(prompt, incomingMessage);
+                contextMessages = await _supabaseService.GetContextMessagesAsync(prompt);
+            }
+
+            if (group.ActiveMode || HasAnyGroupMention(incomingMessage))
+            {
+                var response = string.Empty;
+                try
+                {
+                    response = await _chatBotService.GenerateResponseAsync(contextMessages, prompt);
+                }
+                catch (Exception)
+                {
+                    await InformGroupAboutPromptReset(incomingMessage);
                     prompt = await _supabaseService.CreatePromptAsync(group);
                     await _supabaseService.SaveMessageAsync(prompt, incomingMessage);
-                    contextMessages = await _supabaseService.GetContextMessagesAsync(prompt);
                 }
 
-                if (group.ActiveMode || HasAnyGroupMention(incomingMessage))
-                {
-                    var response = string.Empty;
-                    try
-                    {
-                        response = await _chatBotService.GenerateResponseAsync(contextMessages, prompt);
-                    }
-                    catch (Exception)
-                    {
-                        await InformGroupAboutPromptReset(incomingMessage);
-                        prompt = await _supabaseService.CreatePromptAsync(group);
-                        await _supabaseService.SaveMessageAsync(prompt, incomingMessage);
-                    }
-
-                    await _supabaseService.SaveAIResponseAsync(prompt, response);
-                    await _whatsappService.SendGroupResponse(incomingMessage, response);
-                }
+                await _supabaseService.SaveAIResponseAsync(prompt, response);
+                await _whatsappService.SendGroupResponse(incomingMessage, response);
             }
         }
 
         private bool HasAnyGroupMention(IncomingMessage incomingMessage) =>
             (incomingMessage?.Message?.Text?.Contains(_appSettings.Value.RomeoSetup?.RomeoNumber!, StringComparison.InvariantCultureIgnoreCase) ?? false)
             || (incomingMessage?.Quoted?.User?.Phone?.Contains(_appSettings.Value.RomeoSetup?.RomeoNumber!, StringComparison.InvariantCultureIgnoreCase) ?? false)
-            || (incomingMessage?.Message!.Text?.Contains("romeo", StringComparison.InvariantCultureIgnoreCase) ?? false);
-
-        private async Task<bool> HasActiveModeCommand(IncomingMessage incomingMessage, Group group)
-        {
-            if (incomingMessage.Message?.Text != null
-                 && (incomingMessage.Message?.Text?.Contains("!active") ?? false)
-                 || (incomingMessage.Message?.Text?.Contains("!passive") ?? false))
-            {
-                var isActiveMode = incomingMessage.Message!.Text!.Contains("!active");
-                await _supabaseService.UpdateGroupActiveMode(group, isActiveMode);
-
-                var msg = isActiveMode ? "📣💬 Ok, ahora contestaré a todos los mensajes del grupo." : "🔔🤐 Ok, ahora solo contestaré cuando mencionado.";
-
-                await _whatsappService.SendGroupMessage(incomingMessage, msg);
-
-                return true;
-            }
-
-            return false;
-        }
-
-        private async Task<bool> HasLocationMessage(IncomingMessage incomingMessage, Prompt prompt)
-        {
-            if (incomingMessage?.Message?.Type == "location")
-            {
-                var response = incomingMessage.Message.Payload;
-
-                var lat = Convert.ToDouble(response!.Split(",")[0], CultureInfo.InvariantCulture);
-                var lng = Convert.ToDouble(response.Split(",")[1], CultureInfo.InvariantCulture);
-
-                var locationMessage = await _nextBikeService.GetNextBikeDataByLocationAsync(lat, lng);
-
-                await _whatsappService.SendGroupResponse(incomingMessage, locationMessage.Text!);
-                await _whatsappService.SendGroupLocationMessage(incomingMessage, locationMessage);
-
-                return true;
-            }
-
-            return false;
-        }
-
-        private async Task<bool> HasRemainingTokenCommand(IncomingMessage incomingMessage, Prompt prompt)
-        {
-            if (incomingMessage.Message?.Text != null && incomingMessage.Message!.Text!.Contains(_appSettings.Value.RomeoSetup?.TokensRemainingCommand!))
-            {
-                var tokenMaxSize = _appSettings.Value.RomeoSetup!.TokenMaxSize;
-                var tokensRemainingMessage = _appSettings.Value.RomeoSetup?.TokensRemainingSuccess!;
-
-                var contextMessages = await _supabaseService.GetContextMessagesAsync(prompt);
-                var tokensRemainingCount = tokenMaxSize - (contextMessages.Sum(x => x.TokenSize) + prompt.TokenSize);
-                var response = string.Format(tokensRemainingMessage, tokensRemainingCount, tokenMaxSize);
-
-                await _whatsappService.SendGroupMessage(incomingMessage, response);
-                return true;
-            }
-
-            return false;
-        }
-
-        private async Task<bool> HasPromptCommand(IncomingMessage incomingMessage, Group group)
-        {
-            if (incomingMessage.Message?.Text != null && incomingMessage.Message.Text.Contains(_appSettings.Value.RomeoSetup?.ResetPromptCommand!))
-            {
-                await _supabaseService.CreatePromptAsync(group, incomingMessage);
-                await _whatsappService.SendGroupMessage(incomingMessage, _appSettings.Value.RomeoSetup?.ResetPromptSuccess!);
-
-                return true;
-            }
-
-            return false;
-        }
+            || (incomingMessage?.Message!.Text?.Contains(_appSettings.Value.RomeoSetup?.RomeoName!, StringComparison.InvariantCultureIgnoreCase) ?? false);
 
         private async Task InformGroupAboutPromptReset(IncomingMessage incomingMessage) =>
             await _whatsappService.SendGroupMessage(incomingMessage, _appSettings.Value.RomeoSetup?.PromptResetMessage!);
