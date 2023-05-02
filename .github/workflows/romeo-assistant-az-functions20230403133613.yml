@@ -9,6 +9,11 @@ env:
   CONFIGURATION: Release
   DOTNET_CORE_VERSION: 6.0.x
   WORKING_DIRECTORY: romeo-assistant-az-functions
+  OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+  MAYTAPI_PRODUCT_ID: ${{ secrets.MAYTAPI_PRODUCT_ID }}
+  MAYTAPI_API_KEY: ${{ secrets.MAYTAPI_API_KEY }}
+  SUPABASE_URL: ${{ secrets.SUPABASE_URL }}
+  SUPABASE_KEY: ${{ secrets.SUPABASE_KEY }}
 jobs:
   build:
     runs-on: windows-latest

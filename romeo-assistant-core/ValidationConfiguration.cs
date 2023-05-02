@@ -3,36 +3,22 @@ using romeo_assistant_core.Models.Configuration;
 
 namespace romeo_assistant_core
 {
-    public class ValidationConfiguration
+    public static class ValidationConfiguration
     {
-        public static void Validate(IConfigurationRoot? secrets,AppSettings appSettings)
+        public static void Validate(IConfigurationRoot? secrets, AppSettings appSettings)
         {
             TrySetSecrets(secrets, appSettings);
 
-            if (string.IsNullOrEmpty(appSettings.OpenAi?.ApiKey))
+            var settings = new List<(string settingValue, string errorMessage)>
             {
-                throw new InvalidOperationException("Missing OpenIA api key , create one over here https://platform.openai.com/account/api-keys and update the config.json file");
-            }
+                (appSettings.OpenAi?.ApiKey, "Missing OpenIA api key , create one over here https://platform.openai.com/account/api-keys and update the config.json file")!,
+                (appSettings.Maytapi?.ProductId, "Missing MayTapi Product Id, create one over here https://console.maytapi.com/developers/token and update the config.json file")!,
+                (appSettings.Maytapi?.ApiKey, "Missing MayTapi Token Id, create one over here https://console.maytapi.com/developers/token and update the config.json file")!,
+                (appSettings.Supabase?.Url, "Missing supaBase url (Host), See documentation https://supabase.com/docs/guides/database/connecting-to-postgres#connecting-with-ssl")!,
+                (appSettings.Supabase?.Key, "Missing supaBase Key, See documentation https://docs.draftbit.com/docs/supabase#get-the-restful-endpoint-and-project-api-key")!
+            };
 
-            if (string.IsNullOrEmpty(appSettings.Maytapi?.ProductId))
-            {
-                throw new InvalidOperationException("Missing MayTapi Product Id, create one over here https://console.maytapi.com/developers/token and update the config.json file");
-            }
-
-            if (string.IsNullOrEmpty(appSettings.Maytapi?.ApiKey))
-            {
-                throw new InvalidOperationException("Missing MayTapi Token Id, create one over here https://console.maytapi.com/developers/token and update the config.json file");
-            }
-
-            if (string.IsNullOrEmpty(appSettings.Supabase?.Url))
-            {
-                throw new InvalidOperationException("Missing supaBase url (Host), See documentation https://supabase.com/docs/guides/database/connecting-to-postgres#connecting-with-ssl");
-            }
-
-            if (string.IsNullOrEmpty(appSettings.Supabase?.Key))
-            {
-                throw new InvalidOperationException("Missing supaBase Key, See documentation https://docs.draftbit.com/docs/supabase#get-the-restful-endpoint-and-project-api-key");
-            }
+            settings.ForEach(ValidateSetting);
         }
 
         private static void TrySetSecrets(IConfigurationRoot? secrets, AppSettings? appSettings)
@@ -41,26 +27,31 @@ namespace romeo_assistant_core
             {
                 return;
             }
-            
-            if (!string.IsNullOrEmpty(secrets["OPENAI_API_KEY"]))
+
+            var secretSettings = new Dictionary<string, Action<string>>
             {
-                appSettings.OpenAi!.ApiKey = secrets["OPENAI_API_KEY"];
+                { "OPENAI_API_KEY", value => appSettings.OpenAi!.ApiKey = value },
+                { "MAYTAPI_PRODUCT_ID", value => appSettings.Maytapi!.ProductId = value },
+                { "MAYTAPI_API_KEY", value => appSettings.Maytapi!.ApiKey = value },
+                { "SUPABASE_URL", value => appSettings.Supabase!.Url = value },
+                { "SUPABASE_KEY", value => appSettings.Supabase!.Key = value }
+            };
+
+            foreach (var setting in secretSettings)
+            {
+                var secretValue = secrets[setting.Key];
+                if (!string.IsNullOrEmpty(secretValue))
+                {
+                    setting.Value(secretValue);
+                }
             }
-            if (!string.IsNullOrEmpty(secrets["MAYTAPI_PRODUCT_ID"]))
+        }
+
+        private static void ValidateSetting((string settingValue, string errorMessage) setting)
+        {
+            if (string.IsNullOrEmpty(setting.settingValue))
             {
-                appSettings.Maytapi!.ProductId = secrets["MAYTAPI_PRODUCT_ID"];
-            }
-            if (!string.IsNullOrEmpty(secrets["MAYTAPI_API_KEY"]))
-            {
-                appSettings.Maytapi!.ApiKey = secrets["MAYTAPI_API_KEY"];
-            }
-            if (!string.IsNullOrEmpty(secrets["SUPABASE_URL"]))
-            {
-                appSettings.Supabase!.Url = secrets["SUPABASE_URL"];
-            }
-            if (!string.IsNullOrEmpty(secrets["SUPABASE_KEY"]))
-            {
-                appSettings.Supabase!.Key = secrets["SUPABASE_KEY"];
+                throw new InvalidOperationException(setting.errorMessage);
             }
         }
     }

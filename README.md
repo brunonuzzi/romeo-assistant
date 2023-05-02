@@ -4,6 +4,24 @@ This .NET WhatsApp bot project utilizes [OpenAI's GPT-3.5](https://openai.com/bl
 
 The Maytapi API allows the bot to integrate with WhatsApp groups, while OpenAI's GPT-3.5 model enables the generation of context-aware text based on user input. All data handling and storage is managed through Supabase, providing a reliable database solution for the project.
 
+# Table of Contents
+
+1. [Meet Romeo](#meet-romeo)
+2. [Features](#features)
+3. [Setup](#setup)
+    - [Prerequisites](#prerequisites)
+        - [Visual Studio](#visual-studio)
+        - [Maytapi account](#maytapi-account)
+        - [OpenAI account](#openai-account)
+        - [Supabase account](#supabase-account)
+4. [Getting Started](#getting-start)
+    - [Clone the repository](#clone-the-repository)
+    - [Update configurations](#update-configurations)
+    - [Create tables on Postgres (supabase)](#create-tables-on-postgres-supabase)
+5. [Start Playing](#start-playing)
+6. [Additional Project: Romeo Assistant Azure Functions](#additional-project-romeo-assistant-azure-functions)
+    - [Enabling production mode](#enabling-production-mode)
+
 # Meet Romeo
 
 ![Romeo profile](./assets/romeo_profile.jpg)
@@ -79,7 +97,7 @@ As of the current OpenAI pricing ($0.002 / 1K tokens), the cost to use the GPT-3
 > Once you have an active OpenAPI account linked with a api key , make sure to [copy the secret key](https://platform.openai.com/account/api-keys) and store them in a safe place for later use.
 
 
-### Supabase account (Postgres)
+### Supabase account
 
 [Supabase](https://supabase.com/) is an open-source alternative to Firebase, providing a suite of tools and services that allows developers to create, manage, and scale modern web applications faster.
 
@@ -92,6 +110,7 @@ You will need to [create a database in supabase](https://supabase.com/docs/guide
 
 
 # Getting start
+
 
 ## Clone the repository
 
