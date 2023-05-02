@@ -201,7 +201,7 @@ if (app.Environment.IsDevelopment())
 Start the application 
 ![Run app](./assets/run-app.png)
 
-You should see the api read to receive the incoming requests from maytapi.
+You should see the api ready to receive the incoming requests from maytapi.
 ![Run app](./assets/running_api.png)
 
 
